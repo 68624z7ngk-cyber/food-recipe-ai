@@ -1,5 +1,6 @@
 from datetime import datetime
 import os
+import io
 
 # from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -24,7 +25,7 @@ def index(request):
             photo = Photo.objects.create(image=photo_file)
 
             try:
-                image = Image.open(photo.image)
+                image = Image.open(io.BytesIO(photo.image.read()))
                 exif = image.getexif()
 
                 taken_at = None
@@ -118,7 +119,7 @@ def generate_ai_caption(request, photo_id):
 #〇〇 #〇〇 #〇〇
 """
 
-            image = Image.open(photo.image)
+            image = Image.open(io.BytesIO(photo.image.read()))
 
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
