@@ -21,3 +21,9 @@ media/
 photos/*.jpg
 photos/*.jpeg
 photos/*.png
+
+# Cloudflare Worker
+cloudflare-worker/node_modules/
+cloudflare-worker/.venv/
+cloudflare-worker/.venv-workers/
+cloudflare-worker/python_modules/
