@@ -174,6 +174,8 @@ AWS_S3_REGION_NAME = "auto"
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
 
+AWS_S3_CUSTOM_DOMAIN = "pub-4b770e555038426ebcbe433a57fe0657.r2.dev"
+
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
