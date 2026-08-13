@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from PIL import Image, ExifTags
 from dotenv import load_dotenv
@@ -15,7 +15,7 @@ load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-@login_required
+# @login_required
 def index(request):
     if request.method == "POST":
         photos = request.FILES.getlist("photos")
