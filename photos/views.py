@@ -122,7 +122,7 @@ def generate_ai_caption(request, photo_id):
             image = Image.open(io.BytesIO(photo.image.read()))
 
             response = client.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-3.5-flash",
                 contents=[image, prompt],
             )
 
