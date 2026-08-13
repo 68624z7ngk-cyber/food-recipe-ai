@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang_"ja'>
+<head>
+    <meta charset="UTF-8">
+    <title>計算機</title>
+
+    <style>
+            body {
+                margin: 0;
+                min-height: 100vh;
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                background: #fff7f2;
+                font-family: sans-serif;
+            }
+
+            .calculator {
+                width: 320px;
+                padding: 30px;
+                border-radius: 24px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+                background: wite;
+                text-align: center;
+            }
+
+            #display {
+                width: 280px;
+                height: 70px;
+                box-sizing: border-box;
+                margin-bottom: 15x;
+                padding: 10px 15px;
+                font-size: 32x;
+                text-align: right;
+                border: none;
+                border-radius: 18px;
+                background: #f7f1ee;
+                color: #5f5551;
+            }
+
+            .buttons {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            button {
+                width: 60px;
+                height: 60px;
+                margin: 5px;
+                border: none;
+                border-radius: 18px;
+                background: #f3ddd2;
+                color: #5f5551;
+                font-size: 22px;
+                cursor: pointer;
+
+                transition: background 0.1s;
+            }
+
+            button:active {
+                transform: scale(0.92);
+            }
+
+            .back-button {
+                display: inline-block;
+                margin-bottom: 20px;
+                padding: 8px 16px;
+                background: #f7e8e1;
+                color: #5f5551;
+                text-decoration: none;
+                border-radius: 12px;
+            }
+        </style>
+
+</head>
+
+<body>
+
+    <div class="calculator">
+
+        <h1>計算機</h1>
+        
+
+        <a href="/" class="back-button">ポートフォリオに戻る</a>
+
+        <div class="buttons">
+            <input type="text" id="display" value="0" readonly>
+        </div>
+        
+        <div class="buttons">
+            <button onclick="press('7')">7</button>
+            <button onclick="press('8')">8</button>
+            <button onclick="press('9')">9</button>
+            <button onclick="press('+')">+</button>
+        </div>
+
+        <div class="buttons">
+            <button onclick="press('4')">4</button>
+            <button onclick="press('5')">5</button>
+            <button onclick="press('6')">6</button>
+            <button onclick="press('-')">-</button>
+        </div>
+
+        <div class="buttons">
+            <button onclick="press('1')">1</button>
+            <button onclick="press('2')">2</button>
+            <button onclick="press('3')">3</button>
+            <button onclick="press('*')">*</button>
+        </div>
+
+        <div class="buttons">
+            <button onclick="press('0')">0</button>
+            <button onclick="press('/')">/</button>
+            <button onclick="calculate()">=</button>
+            <button onclick="clearDisplay()">C</button>
+        </div>
+
+        <script>
+            function press(number) {
+                const display = document.getElementById("display");
+                
+                if (display.value === "0") {
+                    display.value = number;
+                } else {
+                    display.value += number;
+                }
+            }
+
+            async function calculate() {
+                const display = document.getElementById("display");
+                try {
+                const expression = display.value;
+                const result = eval(expression);
+                display.value = result;
+
+                const formData = new FormData();
+                    formData.append("expression", expression);
+                    formData.append("result", result);
+                
+                    const response = await fetch("/calculator/save/", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": getCookie("csrftoken"),
+                        },
+                    });
+
+                    const data = await response.json();
+                    
+                    console.log(data);
+
+                    const history = document.getElementById("history");
+                    const item = document.createElement("li");
+                    item.textContent = `${expression} = ${result}`;
+                    history.prepend(item);
+                } catch {
+                    display.value = "エラー";
+                }
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                
+                if (document.cookie && document.cookie !== "") {
+                    const cookies = document.cookie.split(";");
+                    
+                    for (let cookie of cookies) {
+                        cookie = cookie.trim();
+
+                        if (cookie.startsWith(name + "=")) {
+                            cookieValue = decodeURIComponent(
+                                cookie.substring(name.length + 1)
+                            );
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            function clearDisplay() {
+                const display = document.getElementById("display");
+                display.value = "0";
+            }
+        </script>
+
+    <h2>計算履歴</h2>
+
+        <ul id="history">
+            {% for calculation in calculations %}
+                <li>
+                    {{ calculation.expression }} = {{ calculation.result }}
+                </li>
+            {% empty %}
+                <li>まだ履歴がありません</li>
+            {% endfor %}
+        </ul>
+
+    </div>
+
+</body>
+</html>

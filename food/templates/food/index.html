@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charaset="UTF-8">
+        <title>食材レシピ</title>
+    </head>
+
+    <body>
+        <h1>食材レシピ</h1>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="image" accept="image/*" required>
+            <button type="submit">アップロード</button>
+        
+        </div>

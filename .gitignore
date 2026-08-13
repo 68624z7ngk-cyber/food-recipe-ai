@@ -1,0 +1,23 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+# Django
+db.sqlite3
+media/
+
+# macOS
+.DS_Store
+
+# Uploaded photos
+photos/*.jpg
+photos/*.jpeg
+photos/*.png

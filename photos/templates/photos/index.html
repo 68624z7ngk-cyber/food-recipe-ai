@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写真整理アプリ</title>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .upload {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .photo {
+            background: white;
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .photo img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .photo textarea {
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .photo button {
+            margin-top: 5px;
+        }
+
+        #viewer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #viewer-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .ai-result {
+            background: #f0f0f0;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .back-button {
+                display: inline-block;
+                margin-bottom: 20px;
+                padding: 8px 16px;
+                background: #f7e8e1;
+                color: #5f5551;
+                text-decoration: none;
+                border-radius: 12px;
+            }
+    </style>
+</head>
+
+<body>
+
+    <h1>📷 写真整理アプリ</h1>
+
+    <a href="/" class="back-button">ポートフォリオに戻る</a>
+
+    <div class="upload">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <input type="file" name="photos" accept="image/*" multiple>
+
+            <button type="submit">アップロード</button>
+        </form>
+    </div>
+
+    {% for month, photos in grouped_photos.items %}
+
+        <h2>{{ month }}</h2>
+
+        <div class="gallery">
+
+            {% for photo in photos %}
+
+                <div class="photo">
+
+                    <img
+                        src="{{ photo.image.url }}"
+                        alt=""
+                        onclick="openPhoto('{{ photo.image.url }}')"
+                    >
+
+                    {% if photo.taken_at %}
+                        <p>{{ photo.taken_at|date:"Y年n月j日 H:i" }}</p>
+                    {% else %}
+                        <p>撮影日時なし</p>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'update_comment' photo.id %}">
+                        {% csrf_token %}
+
+                        <textarea
+                            name="comment"
+                            rows="3"
+                            placeholder="この写真について書いてみよう..."
+                        >{{ photo.comment }}</textarea>
+
+                        <button type="submit">コメントを保存</button>
+                    </form>
+
+                    <form method="post" action="{% url 'generate_ai_caption' photo.id %}">
+                        {% csrf_token %}
+
+                        <button type="submit">✨ AIで文章を作る</button>
+                    </form>
+
+                    {% if photo.ai_caption %}
+                        <div class="ai-result">
+                            <strong>AIの文章</strong>
+                            <p>{{ photo.ai_caption }}</p>
+                        </div>
+                    {% endif %}
+
+                    {% if photo.hashtags %}
+                        <div class="ai-result">
+                            <strong>ハッシュタグ</strong>
+                            <p>{{ photo.hashtags }}</p>
+                        </div>
+                    {% endif %}
+
+                    <form method="post"
+                          action="{% url 'delete_photo' photo.id %}"
+                          onsubmit="return confirm('この写真を削除しますか？');">
+
+                        {% csrf_token %}
+
+                        <button type="submit">削除</button>
+                    </form>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% empty %}
+
+        <p>まだ写真がありません。</p>
+
+    {% endfor %}
+
+
+    <div id="viewer" onclick="closePhoto()">
+        <img id="viewer-image" src="" alt="">
+    </div>
+
+
+    <script>
+        function openPhoto(url) {
+            document.getElementById("viewer-image").src = url;
+            document.getElementById("viewer").style.display = "flex";
+        }
+
+        function closePhoto() {
+            document.getElementById("viewer").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
