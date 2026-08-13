@@ -94,7 +94,8 @@ def generate_ai_caption(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
 
     if request.method == "POST":
-        prompt = f"""
+        try:
+            prompt = f"""
 この写真について、SNSに投稿するような自然な日本語の文章を作ってください。
 
 ユーザーが書いたメモ：
@@ -117,23 +118,29 @@ def generate_ai_caption(request, photo_id):
 #〇〇 #〇〇 #〇〇
 """
 
-        image = Image.open(photo.image)
+            image = Image.open(photo.image)
 
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=[image, prompt],
-        )
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[image, prompt],
+            )
 
-        result = response.text
+            result = response.text
 
-        if "ハッシュタグ：" in result:
-            caption, hashtags = result.split("ハッシュタグ：", 1)
-        else:
-            caption = result
-            hashtags = ""
+            if "ハッシュタグ：" in result:
+                caption, hashtags = result.split("ハッシュタグ：", 1)
+            else:
+                caption = result
+                hashtags = ""
 
-        photo.ai_caption = caption.replace("文章：", "").strip()
-        photo.hashtags = hashtags.strip()
-        photo.save()
+            photo.ai_caption = caption.replace("文章：", "").strip()
+            photo.hashtags = hashtags.strip()
+            photo.save()
+
+        except Exception as e:
+            print("===== GEMINI ERROR =====")
+            print(repr(e))
+            print("========================")
+            raise
 
     return redirect("index")
