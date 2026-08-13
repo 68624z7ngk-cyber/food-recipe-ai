@@ -117,9 +117,11 @@ def generate_ai_caption(request, photo_id):
 #〇〇 #〇〇 #〇〇
 """
 
+        image = Image.open(photo.image)
+
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=prompt,
+            contents=[image, prompt],
         )
 
         result = response.text
