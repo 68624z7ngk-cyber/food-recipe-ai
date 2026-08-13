@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import Calculation
 # Create your views here.
+@ensure_csrf_cookie
 def index(request):
     calculations = Calculation.objects.order_by("-created_at")
 
