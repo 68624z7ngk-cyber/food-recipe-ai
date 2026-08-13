@@ -85,15 +85,23 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+#DATABASES = {
+#    "default": {
+#        "ENGINE": "django.db.backends.mysql",
+#        "NAME": "photo_organizer",
+#        "USER": "django",
+#        "PASSWORD": "django1234",
+#        "HOST": "127.0.0.1",
+#        "PORT": "3306",
+#    }
+#}
+
+import dj_database_url
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "photo_organizer",
-        "USER": "django",
-        "PASSWORD": "django1234",
-        "HOST": "127.0.0.1",
-        "PORT": "3306",
-    }
+    "default": dj_database_url.config(
+        default="mysql://django:django1234@127.0.0.1:3306/photo_organizer"
+    )
 }
 
 
