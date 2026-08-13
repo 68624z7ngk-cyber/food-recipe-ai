@@ -35,6 +35,10 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://k-naga.dev",
+]
+
 
 # Application definition
 
