@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+
+    {% load static %}
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -351,6 +354,24 @@
             .architecture pre {
                 font-size: 11px;
             }
+
+            .project {
+                overflow: hidden;
+            }
+
+            .project-image {
+                width: 100%;
+                aspect-ratio: 16 / 9;
+                object-fit: cover;
+                border-radius: 14px;
+                margin-bottom: 25px;
+                display: block;
+                transition: transform 0.4s ease;
+            }
+
+            .project:hover .project-image {
+                transform: scale(1.03);
+            }
         }
     </style>
 </head>
@@ -474,6 +495,12 @@
                         PROJECT 001
                     </div>
 
+                    <img
+                        src="{% static 'portfolio/images/photo.jpg' %}"
+                        alt="Photo Organizer"
+                        class="project-image"
+                    >
+
                     <h3>Photo Organizer</h3>
 
                     <p>
@@ -504,6 +531,12 @@
                     <div class="project-number">
                         PROJECT 002
                     </div>
+
+                    <img
+                        src="{% static 'portfolio/images/calculator.jpg' %}"
+                        alt="Calculator"
+                        class="project-image"
+>
 
                     <h3>Calculator</h3>
 
@@ -732,6 +765,46 @@ Django + PostgreSQL
 </code>
                     </div>
 
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- BEYOND CODE -->
+
+    <section>
+
+        <div class="wrapper">
+
+            <div class="section-label">
+                06 / BEYOND CODE
+            </div>
+
+            <h2>Beyond Code</h2>
+
+            <div class="tech-grid">
+
+                <div class="tech-card">
+                    <h3>PIANO</h3>
+                    <p>毎日ピアノを弾いています。音楽を楽しみながら、気分転換やリフレッシュをしています。</p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>READING</h3>
+                    <p>毎日、本を読んでいます。新しい物語や言葉に触れることを、日々の楽しみにしています。</p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>CHINESE</h3>
+                    <p>HSK3級を取得し、現在は4級を目指しています。コーチングを受けながら学び、台湾でも実際に使っています。</p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>SCOUTING</h3>
+                    <p>ボーイスカウトの隊長をしています。子どもたちと野外活動を楽しみながら、活動を企画しています。</p>
                 </div>
 
             </div>
