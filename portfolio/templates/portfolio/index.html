@@ -1,53 +1,755 @@
 <!DOCTYPE html>
 <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <title>ポートフォリオ</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <style>
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                margin: 0 auto;
-                min-height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
+    <title>Portfolio | Python / Django</title>
 
-                background: #fff7f2;
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: #f5f5f3;
+            color: #171717;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Helvetica Neue",
+                "Hiragino Kaku Gothic ProN",
+                "Yu Gothic",
+                sans-serif;
+            line-height: 1.8;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 28px;
+        }
+
+        /* HEADER */
+
+        header {
+            padding: 28px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        nav a:hover {
+            color: #111;
+        }
+
+        /* HERO */
+
+        .hero {
+            padding: 110px 0 100px;
+        }
+
+        .eyebrow {
+            font-family: monospace;
+            font-size: 13px;
+            letter-spacing: 0.15em;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            max-width: 800px;
+            font-size: clamp(42px, 7vw, 78px);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .hero h1 span {
+            color: #777;
+        }
+
+        .hero-text {
+            max-width: 650px;
+            margin-top: 30px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .status {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 35px;
+        }
+
+        .status span {
+            padding: 7px 12px;
+            border: 1px solid #ccc;
+            border-radius: 100px;
+            background: white;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .status span::before {
+            content: "●";
+            margin-right: 7px;
+            font-size: 8px;
+        }
+
+        /* SECTION */
+
+        section {
+            padding: 90px 0;
+            border-top: 1px solid #ddd;
+        }
+
+        .section-label {
+            font-family: monospace;
+            font-size: 12px;
+            letter-spacing: 0.18em;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin: 0 0 35px;
+            font-size: 34px;
+            letter-spacing: -0.03em;
+        }
+
+        /* ABOUT */
+
+        .about {
+            max-width: 760px;
+            font-size: 17px;
+            color: #555;
+        }
+
+        .about strong {
+            color: #111;
+        }
+
+        /* PROJECTS */
+
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .project {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 32px;
+            transition: 0.2s;
+        }
+
+        .project:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+        }
+
+        .project-number {
+            font-family: monospace;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .project h3 {
+            margin: 10px 0;
+            font-size: 25px;
+        }
+
+        .project p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin: 20px 0;
+        }
+
+        .tag {
+            background: #f1f1ef;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        .project-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .project-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ARCHITECTURE */
+
+        .architecture {
+            background: #111;
+            color: white;
+            border-radius: 24px;
+            padding: 45px;
+            overflow-x: auto;
+        }
+
+        .architecture pre {
+            margin: 0;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #ddd;
+        }
+
+        .architecture-note {
+            margin-top: 30px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        /* TECH */
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .tech-card {
+            padding: 25px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+        }
+
+        .tech-card h3 {
+            margin: 0 0 15px;
+            font-size: 15px;
+        }
+
+        .tech-card p {
+            margin: 0;
+            font-family: monospace;
+            color: #666;
+            font-size: 12px;
+            line-height: 2;
+        }
+
+        /* DEVELOPMENT */
+
+        .development {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .dev-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .dev-card h3 {
+            margin-top: 0;
+        }
+
+        .dev-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .code {
+            padding: 18px;
+            background: #f1f1ef;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .code code {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            padding: 50px 0;
+            border-top: 1px solid #ddd;
+            color: #888;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
+            .wrapper {
+                padding: 0 18px;
             }
 
-            .container {
-                width: 350px;
-                padding: 40px;
-                border-radius: 24px;
-                background: white;
-                text-align: center;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            nav {
+                display: none;
             }
 
-            .app-card {
-                display: block;
-                margin: 15px 0;
-                padding: 20px;
-                border-radius: 18px;
-                background: #fff7f2;
+            .hero {
+                padding: 70px 0;
             }
 
-            .app-card:active {
-                transform: scale(0.97);
+            .projects,
+            .development {
+                grid-template-columns: 1fr;
             }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>ポートフォリオ</h1>
-            <p>作ったアプリ</p>
 
-                <a href="/photos/" class="app-card">写真アプリ</a>
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
 
-                <a href="/calculator/" class="app-card">計算機アプリ</a>
+            .architecture {
+                padding: 25px;
+            }
+
+            .architecture pre {
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="wrapper header-inner">
+
+        <div class="logo">
+            K.NAGA
+        </div>
+
+        <nav>
+            <a href="#about">ABOUT</a>
+            <a href="#projects">PROJECTS</a>
+            <a href="#architecture">ARCHITECTURE</a>
+            <a href="#tech">TECH</a>
+        </nav>
+
+    </div>
+</header>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="hero" style="border-top: none;">
+
+        <div class="wrapper">
+
+            <div class="eyebrow">
+                PYTHON / DJANGO / WEB APPLICATION
+            </div>
+
+            <h1>
+                Build.<br>
+                Connect.<br>
+                <span>Deploy.</span>
+            </h1>
+
+            <p class="hero-text">
+                Python / Djangoを中心に、データベース、外部API、
+                クラウドストレージなどを組み合わせた
+                Webアプリケーションを開発しています。
+            </p>
+
+            <div class="status">
+                <span>PYTHON</span>
+                <span>DJANGO</span>
+                <span>POSTGRESQL</span>
+                <span>GEMINI API</span>
+                <span>CLOUDFLARE R2</span>
+                <span>RENDER</span>
+            </div>
 
         </div>
 
-    </body>
+    </section>
+
+
+    <!-- ABOUT -->
+
+    <section id="about">
+
+        <div class="wrapper">
+
+            <div class="section-label">
+                01 / ABOUT
+            </div>
+
+            <h2>About</h2>
+
+            <div class="about">
+
+                <p>
+                    Python / Djangoを使ったWebアプリケーションの
+                    設計・開発・デプロイまでを一通り経験しています。
+                </p>
+
+                <p>
+                    Djangoの
+                    <strong>URL routing / View / Template / Model / ORM</strong>
+                    を利用し、PostgreSQLとのデータ連携や
+                    外部APIとの連携を実装しています。
+                </p>
+
+                <p>
+                    また、画像を扱うアプリケーションでは
+                    Cloudflare R2をオブジェクトストレージとして利用し、
+                    Gemini APIによる画像解析・文章生成など、
+                    複数のサービスを組み合わせた構成にも取り組んでいます。
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROJECTS -->
+
+    <section id="projects">
+
+        <div class="wrapper">
+
+            <div class="section-label">
+                02 / PROJECTS
+            </div>
+
+            <h2>Projects</h2>
+
+            <div class="projects">
+
+
+                <article class="project">
+
+                    <div class="project-number">
+                        PROJECT 001
+                    </div>
+
+                    <h3>Photo Organizer</h3>
+
+                    <p>
+                        写真をアップロードして整理・管理するWebアプリ。
+                        EXIFから撮影日時を取得し、
+                        Gemini APIを利用して写真から
+                        SNS投稿用の文章とハッシュタグを生成します。
+                    </p>
+
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Django</span>
+                        <span class="tag">PostgreSQL</span>
+                        <span class="tag">Gemini API</span>
+                        <span class="tag">Cloudflare R2</span>
+                        <span class="tag">JavaScript</span>
+                    </div>
+
+                    <a href="/photos/" class="project-link">
+                        OPEN APP →
+                    </a>
+
+                </article>
+
+
+                <article class="project">
+
+                    <div class="project-number">
+                        PROJECT 002
+                    </div>
+
+                    <h3>Calculator</h3>
+
+                    <p>
+                        JavaScriptで計算処理を行い、
+                        Djangoを経由して計算履歴を
+                        PostgreSQLへ保存するWeb電卓。
+                    </p>
+
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Django</span>
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">Fetch API</span>
+                        <span class="tag">PostgreSQL</span>
+                    </div>
+
+                    <a href="/calculator/" class="project-link">
+                        OPEN APP →
+                    </a>
+
+                </article>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ARCHITECTURE -->
+
+    <section id="architecture">
+
+        <div class="wrapper">
+
+            <div class="section-label">
+                03 / ARCHITECTURE
+            </div>
+
+            <h2>How it works</h2>
+
+            <div class="architecture">
+
+<pre>
+                        Browser
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │   Render    │
+                    │   Django    │
+                    └──────┬──────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+              ▼            ▼            ▼
+        PostgreSQL    Cloudflare R2   Gemini API
+              │            │            │
+              │            │            │
+        Application     Images       AI Caption
+           Data
+</pre>
+
+                <div class="architecture-note">
+                    Djangoを中心に、Database / Storage / AIを
+                    外部サービスとして分離して構成しています。
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TECH -->
+
+    <section id="tech">
+
+        <div class="wrapper">
+
+            <div class="section-label">
+                04 / TECH STACK
+            </div>
+
+            <h2>Tech Stack</h2>
+
+            <div class="tech-grid">
+
+                <div class="tech-card">
+                    <h3>Backend</h3>
+                    <p>
+                        Python<br>
+                        Django<br>
+                        Django ORM<br>
+                        psycopg
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>Database</h3>
+                    <p>
+                        PostgreSQL<br>
+                        SQLite<br>
+                        dj-database-url
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>Frontend</h3>
+                    <p>
+                        HTML<br>
+                        CSS<br>
+                        JavaScript<br>
+                        Fetch API
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>AI / API</h3>
+                    <p>
+                        Gemini API<br>
+                        Multimodal Input<br>
+                        REST / HTTP
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>Storage</h3>
+                    <p>
+                        Cloudflare R2<br>
+                        S3 Compatible API<br>
+                        django-storages
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>Deployment</h3>
+                    <p>
+                        Render<br>
+                        Gunicorn<br>
+                        Environment Variables
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>Version Control</h3>
+                    <p>
+                        Git<br>
+                        GitHub<br>
+                        Branch Management
+                    </p>
+                </div>
+
+                <div class="tech-card">
+                    <h3>Image Processing</h3>
+                    <p>
+                        Pillow<br>
+                        EXIF<br>
+                        Image Metadata
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- DEVELOPMENT -->
+
+    <section>
+
+        <div class="wrapper">
+
+            <div class="section-label">
+                05 / DEVELOPMENT
+            </div>
+
+            <h2>Development</h2>
+
+            <div class="development">
+
+                <div class="dev-card">
+
+                    <h3>Environment Variables</h3>
+
+                    <p>
+                        APIキー、データベース接続情報、
+                        R2の認証情報などの機密情報は
+                        ソースコードに直接記述せず、
+                        環境変数から取得しています。
+                    </p>
+
+                    <div class="code">
+<code>
+os.getenv("GEMINI_API_KEY")<br>
+os.getenv("DATABASE_URL")<br>
+os.getenv("R2_ACCESS_KEY_ID")
+</code>
+                    </div>
+
+                </div>
+
+
+                <div class="dev-card">
+
+                    <h3>Production</h3>
+
+                    <p>
+                        GitHubでソースコードを管理し、
+                        Renderへデプロイ。
+                        本番環境ではPostgreSQLを使用し、
+                        画像ファイルはCloudflare R2へ保存しています。
+                    </p>
+
+                    <div class="code">
+<code>
+GitHub<br>
+&nbsp;&nbsp;↓<br>
+Render<br>
+&nbsp;&nbsp;↓<br>
+Django + PostgreSQL
+</code>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <div class="wrapper">
+        Python / Django Portfolio — 2026
+    </div>
+
+</footer>
+
+</body>
 </html>
