@@ -322,6 +322,28 @@
             font-family: monospace;
         }
 
+        .project {
+            overflow: hidden;
+        }
+
+        .project-image {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .project:hover .project-image {
+            transform: scale(1.03);
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+
         /* MOBILE */
 
         @media (max-width: 700px) {
@@ -355,23 +377,6 @@
                 font-size: 11px;
             }
 
-            .project {
-                overflow: hidden;
-            }
-
-            .project-image {
-                width: 100%;
-                aspect-ratio: 16 / 9;
-                object-fit: cover;
-                border-radius: 14px;
-                margin-bottom: 25px;
-                display: block;
-                transition: transform 0.4s ease;
-            }
-
-            .project:hover .project-image {
-                transform: scale(1.03);
-            }
         }
     </style>
 </head>
