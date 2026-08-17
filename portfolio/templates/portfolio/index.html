@@ -483,94 +483,159 @@
 
     <section id="projects">
 
-        <div class="wrapper">
+    <div class="wrapper">
 
-            <div class="section-label">
-                02 / PROJECTS
-            </div>
+        <div class="section-label">
+            02 / PROJECTS
+        </div>
 
-            <h2>Projects</h2>
+        <h2>Projects</h2>
 
-            <div class="projects">
+        <div class="projects">
 
+            <article class="project">
 
-                <article class="project">
+                <div class="project-number">
+                    PROJECT 001
+                </div>
 
-                    <div class="project-number">
-                        PROJECT 001
-                    </div>
+                <img
+                    src="{% static 'portfolio/images/photo.jpg' %}"
+                    alt="Photo Organizer"
+                    class="project-image"
+                >
 
-                    <img
-                        src="{% static 'portfolio/images/photo.jpg' %}"
-                        alt="Photo Organizer"
-                        class="project-image"
-                    >
+                <h3>Photo Organizer</h3>
 
-                    <h3>Photo Organizer</h3>
+                <p>
+                    写真をアップロードして整理・管理するWebアプリ。
+                    EXIFから撮影日時を取得し、
+                    Gemini APIを利用して写真から
+                    SNS投稿用の文章とハッシュタグを生成します。
+                </p>
 
-                    <p>
-                        写真をアップロードして整理・管理するWebアプリ。
-                        EXIFから撮影日時を取得し、
-                        Gemini APIを利用して写真から
-                        SNS投稿用の文章とハッシュタグを生成します。
-                    </p>
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Django</span>
+                    <span class="tag">PostgreSQL</span>
+                    <span class="tag">Gemini API</span>
+                    <span class="tag">Cloudflare R2</span>
+                    <span class="tag">JavaScript</span>
+                </div>
 
-                    <div class="tags">
-                        <span class="tag">Python</span>
-                        <span class="tag">Django</span>
-                        <span class="tag">PostgreSQL</span>
-                        <span class="tag">Gemini API</span>
-                        <span class="tag">Cloudflare R2</span>
-                        <span class="tag">JavaScript</span>
-                    </div>
+                <a href="/photos/" class="project-link">
+                    OPEN APP →
+                </a>
 
-                    <a href="/photos/" class="project-link">
-                        OPEN APP →
-                    </a>
-
-                </article>
-
-
-                <article class="project">
-
-                    <div class="project-number">
-                        PROJECT 002
-                    </div>
-
-                    <img
-                        src="{% static 'portfolio/images/calculator.jpg' %}"
-                        alt="Calculator"
-                        class="project-image"
->
-
-                    <h3>Calculator</h3>
-
-                    <p>
-                        JavaScriptで計算処理を行い、
-                        Djangoを経由して計算履歴を
-                        PostgreSQLへ保存するWeb電卓。
-                    </p>
-
-                    <div class="tags">
-                        <span class="tag">Python</span>
-                        <span class="tag">Django</span>
-                        <span class="tag">JavaScript</span>
-                        <span class="tag">Fetch API</span>
-                        <span class="tag">PostgreSQL</span>
-                    </div>
-
-                    <a href="/calculator/" class="project-link">
-                        OPEN APP →
-                    </a>
-
-                </article>
+            </article>
 
 
-            </div>
+            <article class="project">
+
+                <div class="project-number">
+                    PROJECT 002
+                </div>
+
+                <img
+                    src="{% static 'portfolio/images/calculator.jpg' %}"
+                    alt="Calculator"
+                    class="project-image"
+                >
+
+                <h3>Calculator</h3>
+
+                <p>
+                    JavaScriptで計算処理を行い、
+                    Djangoを経由して計算履歴を
+                    PostgreSQLへ保存するWeb電卓。
+                </p>
+
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Django</span>
+                    <span class="tag">JavaScript</span>
+                    <span class="tag">Fetch API</span>
+                    <span class="tag">PostgreSQL</span>
+                </div>
+
+                <a href="/calculator/" class="project-link">
+                    OPEN APP →
+                </a>
+
+            </article>
+
+
+            <article class="project">
+
+                <div class="project-number">
+                    PROJECT 003
+                </div>
+
+                <img
+                    src="{% static 'portfolio/images/food.jpg' %}"
+                    alt="Food Recipe AI"
+                    class="project-image"
+                >
+
+                <h3>Food Recipe AI</h3>
+
+                <p>
+                    食材を写真撮影すると、画像から食材を認識し、
+                    AIがその食材を活用したレシピを生成するアプリ。
+                </p>
+
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Django</span>
+                    <span class="tag">Gemini API</span>
+                    <span class="tag">Image Recognition</span>
+                </div>
+
+                <span class="project-status">
+                    IN DEVELOPMENT
+                </span>
+
+            </article>
+
+
+            <article class="project">
+
+                <div class="project-number">
+                    PROJECT 004
+                </div>
+
+                <img
+                    src="{% static 'portfolio/images/cms.jpg' %}"
+                    alt="CMS Integration"
+                    class="project-image"
+                >
+
+                <h3>CMS Integration</h3>
+
+                <p>
+                    WebアプリケーションにCMSを組み込み、
+                    管理画面からコンテンツを登録・編集できる仕組みを構築。
+                    データベースとWeb画面を連携させたシステム。
+                </p>
+
+                <div class="tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Django</span>
+                    <span class="tag">CMS</span>
+                    <span class="tag">Database</span>
+                </div>
+
+                <span class="project-status">
+                    IN DEVELOPMENT
+                </span>
+
+            </article>
 
         </div>
 
-    </section>
+    </div>
+
+</section>
 
 
     <!-- ARCHITECTURE -->
