@@ -16,7 +16,8 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def index(request):
-    # 公開サイトではアップロードを一時停止中
+    # 公開サイトではセキュリティ上の理由により
+    # 写真のアップロードを一時停止中
     #
     # if request.method == "POST":
     #     photos = request.FILES.getlist("photos")
@@ -72,7 +73,7 @@ def index(request):
 
 
 def delete_photo(request, photo_id):
-    # 公開サイトでは削除を一時停止中
+    # 公開サイトでは削除機能を一時停止中
     #
     # photo = get_object_or_404(Photo, id=photo_id)
     #
@@ -84,7 +85,7 @@ def delete_photo(request, photo_id):
 
 
 def update_comment(request, photo_id):
-    # 公開サイトではコメント保存を一時停止中
+    # 公開サイトではコメント保存機能を一時停止中
     #
     # photo = get_object_or_404(Photo, id=photo_id)
     #
@@ -96,53 +97,56 @@ def update_comment(request, photo_id):
 
 
 def generate_ai_caption(request, photo_id):
-    photo = get_object_or_404(Photo, id=photo_id)
-
-    if request.method == "POST":
-        try:
-            prompt = f"""
-この写真について、SNSに投稿するような自然な日本語の文章を作ってください。
-
-ユーザーが書いたメモ：
-{photo.comment}
-
-文章は100〜200文字程度。
-押しつけがましくなく、自然で読みやすい文章にしてください。
-
-そのあとに、この写真に合うハッシュタグを5〜10個作ってください。
-
-以下の形式で出してください。
-
-文章：
-（ここに文章）
-
-ハッシュタグ：
-#〇〇 #〇〇 #〇〇
-"""
-
-            image = Image.open(io.BytesIO(photo.image.read()))
-
-            response = client.models.generate_content(
-                model="gemini-3.5-flash",
-                contents=[image, prompt],
-            )
-
-            result = response.text
-
-            if "ハッシュタグ：" in result:
-                caption, hashtags = result.split("ハッシュタグ：", 1)
-            else:
-                caption = result
-                hashtags = ""
-
-            photo.ai_caption = caption.replace("文章：", "").strip()
-            photo.hashtags = hashtags.strip()
-            photo.save()
-
-        except Exception as e:
-            print("===== GEMINI ERROR =====")
-            print(repr(e))
-            print("========================")
-            raise
+    # 公開サイトではセキュリティ上の理由により
+    # AIによる文章生成を一時停止中
+    #
+    # photo = get_object_or_404(Photo, id=photo_id)
+    #
+    # if request.method == "POST":
+    #     try:
+    #         prompt = f"""
+    # この写真について、SNSに投稿するような自然な日本語の文章を作ってください。
+    #
+    # ユーザーが書いたメモ：
+    # {photo.comment}
+    #
+    # 文章は100〜200文字程度。
+    # 押しつけがましくなく、自然で読みやすい文章にしてください。
+    #
+    # そのあとに、この写真に合うハッシュタグを5〜10個作ってください。
+    #
+    # 以下の形式で出してください。
+    #
+    # 文章：
+    # （ここに文章）
+    #
+    # ハッシュタグ：
+    # #〇〇 #〇〇 #〇〇
+    # """
+    #
+    #         image = Image.open(io.BytesIO(photo.image.read()))
+    #
+    #         response = client.models.generate_content(
+    #             model="gemini-3.5-flash",
+    #             contents=[image, prompt],
+    #         )
+    #
+    #         result = response.text
+    #
+    #         if "ハッシュタグ：" in result:
+    #             caption, hashtags = result.split("ハッシュタグ：", 1)
+    #         else:
+    #             caption = result
+    #             hashtags = ""
+    #
+    #         photo.ai_caption = caption.replace("文章：", "").strip()
+    #         photo.hashtags = hashtags.strip()
+    #         photo.save()
+    #
+    #     except Exception as e:
+    #         print("===== GEMINI ERROR =====")
+    #         print(repr(e))
+    #         print("========================")
+    #         raise
 
     return redirect("index")
