@@ -15,7 +15,16 @@
         }
 
         h1 {
+            margin-bottom: 15px;
+        }
+
+        .description {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
             margin-bottom: 30px;
+            line-height: 1.8;
+            color: #555;
         }
 
         .upload {
@@ -79,14 +88,14 @@
         }
 
         .back-button {
-                display: inline-block;
-                margin-bottom: 20px;
-                padding: 8px 16px;
-                background: #f7e8e1;
-                color: #5f5551;
-                text-decoration: none;
-                border-radius: 12px;
-            }
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #f7e8e1;
+            color: #5f5551;
+            text-decoration: none;
+            border-radius: 12px;
+        }
     </style>
 </head>
 
@@ -95,6 +104,21 @@
     <h1>📷 写真整理アプリ</h1>
 
     <a href="/" class="back-button">ポートフォリオに戻る</a>
+
+    <div class="description">
+        <strong>写真から、SNS投稿用の文章をAIで作成できます。</strong>
+
+        <p>
+            写真について自分でコメントを書いてから
+            「AIで文章を作る」を押すと、
+            そのコメントをもとに自然な文章とハッシュタグを生成します。
+        </p>
+
+        <p>
+            コメントを書かなくても、AIが写真そのものを読み取り、
+            写真の内容から推測した文章とハッシュタグを生成できます。
+        </p>
+    </div>
 
     <div class="upload">
         <form method="post" enctype="multipart/form-data">
@@ -122,11 +146,13 @@
                         onclick="openPhoto('{{ photo.image.url }}')"
                     >
 
+                    <!-- 撮影日時は一時的に非表示
                     {% if photo.taken_at %}
                         <p>{{ photo.taken_at|date:"Y年n月j日 H:i" }}</p>
                     {% else %}
                         <p>撮影日時なし</p>
                     {% endif %}
+                    -->
 
                     <form method="post" action="{% url 'update_comment' photo.id %}">
                         {% csrf_token %}
@@ -181,11 +207,9 @@
 
     {% endfor %}
 
-
     <div id="viewer" onclick="closePhoto()">
         <img id="viewer-image" src="" alt="">
     </div>
-
 
     <script>
         function openPhoto(url) {

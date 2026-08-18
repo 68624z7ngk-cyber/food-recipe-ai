@@ -2,7 +2,6 @@ from datetime import datetime
 import os
 import io
 
-# from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from PIL import Image, ExifTags
 from dotenv import load_dotenv
@@ -16,35 +15,36 @@ load_dotenv()
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-# @login_required
 def index(request):
-    if request.method == "POST":
-        photos = request.FILES.getlist("photos")
-
-        for photo_file in photos:
-            photo = Photo.objects.create(image=photo_file)
-
-            try:
-                image = Image.open(io.BytesIO(photo.image.read()))
-                exif = image.getexif()
-
-                taken_at = None
-
-                for tag_id, value in exif.items():
-                    tag = ExifTags.TAGS.get(tag_id)
-
-                    if tag == "DateTimeOriginal":
-                        taken_at = datetime.strptime(
-                            value, "%Y:%m:%d %H:%M:%S"
-                        )
-                        break
-
-                if taken_at:
-                    photo.taken_at = taken_at
-                    photo.save()
-
-            except Exception:
-                pass
+    # 公開サイトではアップロードを一時停止中
+    #
+    # if request.method == "POST":
+    #     photos = request.FILES.getlist("photos")
+    #
+    #     for photo_file in photos:
+    #         photo = Photo.objects.create(image=photo_file)
+    #
+    #         try:
+    #             image = Image.open(io.BytesIO(photo.image.read()))
+    #             exif = image.getexif()
+    #
+    #             taken_at = None
+    #
+    #             for tag_id, value in exif.items():
+    #                 tag = ExifTags.TAGS.get(tag_id)
+    #
+    #                 if tag == "DateTimeOriginal":
+    #                     taken_at = datetime.strptime(
+    #                         value, "%Y:%m:%d %H:%M:%S"
+    #                     )
+    #                     break
+    #
+    #             if taken_at:
+    #                 photo.taken_at = taken_at
+    #                 photo.save()
+    #
+    #         except Exception:
+    #             pass
 
     photos = Photo.objects.all().order_by(
         "-taken_at",
@@ -72,21 +72,25 @@ def index(request):
 
 
 def delete_photo(request, photo_id):
-    photo = get_object_or_404(Photo, id=photo_id)
-
-    if request.method == "POST":
-        photo.image.delete(save=False)
-        photo.delete()
+    # 公開サイトでは削除を一時停止中
+    #
+    # photo = get_object_or_404(Photo, id=photo_id)
+    #
+    # if request.method == "POST":
+    #     photo.image.delete(save=False)
+    #     photo.delete()
 
     return redirect("index")
 
 
 def update_comment(request, photo_id):
-    photo = get_object_or_404(Photo, id=photo_id)
-
-    if request.method == "POST":
-        photo.comment = request.POST.get("comment", "")
-        photo.save()
+    # 公開サイトではコメント保存を一時停止中
+    #
+    # photo = get_object_or_404(Photo, id=photo_id)
+    #
+    # if request.method == "POST":
+    #     photo.comment = request.POST.get("comment", "")
+    #     photo.save()
 
     return redirect("index")
 
@@ -101,9 +105,6 @@ def generate_ai_caption(request, photo_id):
 
 ユーザーが書いたメモ：
 {photo.comment}
-
-撮影日時：
-{photo.taken_at}
 
 文章は100〜200文字程度。
 押しつけがましくなく、自然で読みやすい文章にしてください。
