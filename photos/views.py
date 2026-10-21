@@ -1,69 +1,115 @@
 from datetime import datetime
-import os
 import io
+import logging
+import os
+from pathlib import Path
+import warnings
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
-from PIL import Image, ExifTags
-from dotenv import load_dotenv
+from django.views.decorators.http import require_POST
 from google import genai
+from PIL import ExifTags, Image, ImageOps, UnidentifiedImageError
 
 from .models import Photo
 
 
-load_dotenv()
+logger = logging.getLogger(__name__)
+MAX_IMAGE_BYTES = 5 * 1024 * 1024
+MAX_UPLOAD_COUNT = 5
+ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+def _open_safe_image(source):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", Image.DecompressionBombWarning)
+        return Image.open(source)
 
 
+def _validate_image(upload):
+    """Validate and normalize an image, stripping EXIF metadata before storage."""
+    if upload.size > MAX_IMAGE_BYTES:
+        raise ValueError("画像は1枚5MB以下にしてください。")
+
+    try:
+        with _open_safe_image(upload) as image:
+            image_format = image.format
+            image.verify()
+
+        if image_format not in ALLOWED_IMAGE_FORMATS:
+            raise ValueError("JPEG、PNG、WebP形式の画像を選んでください。")
+
+        upload.seek(0)
+        with _open_safe_image(upload) as image:
+            if getattr(image, "n_frames", 1) != 1:
+                raise ValueError("アニメーション画像はアップロードできません。")
+
+            taken_at = None
+            for tag_id, value in image.getexif().items():
+                if ExifTags.TAGS.get(tag_id) == "DateTimeOriginal":
+                    try:
+                        taken_at = datetime.strptime(value, "%Y:%m:%d %H:%M:%S")
+                    except (TypeError, ValueError):
+                        pass
+                    break
+
+            normalized = ImageOps.exif_transpose(image)
+            output = io.BytesIO()
+            save_options = {
+                "JPEG": {"quality": 90, "optimize": True},
+                "PNG": {"optimize": True},
+                "WEBP": {"quality": 90, "method": 6},
+            }[image_format]
+            normalized.save(output, format=image_format, **save_options)
+
+        if output.tell() > MAX_IMAGE_BYTES:
+            raise ValueError("画像の変換後サイズが5MBを超えています。小さい画像を選んでください。")
+
+        cleaned_upload = ContentFile(
+            output.getvalue(),
+            name=Path(upload.name).name,
+        )
+        return cleaned_upload, taken_at
+    except (
+        UnidentifiedImageError,
+        OSError,
+        Image.DecompressionBombError,
+        Image.DecompressionBombWarning,
+    ) as exc:
+        raise ValueError("画像を読み取れませんでした。別の画像を選んでください。") from exc
+    finally:
+        upload.seek(0)
+
+
+@login_required
 def index(request):
-    # 公開サイトではセキュリティ上の理由により
-    # 写真のアップロードを一時停止中
-    #
-    # if request.method == "POST":
-    #     photos = request.FILES.getlist("photos")
-    #
-    #     for photo_file in photos:
-    #         photo = Photo.objects.create(image=photo_file)
-    #
-    #         try:
-    #             image = Image.open(io.BytesIO(photo.image.read()))
-    #             exif = image.getexif()
-    #
-    #             taken_at = None
-    #
-    #             for tag_id, value in exif.items():
-    #                 tag = ExifTags.TAGS.get(tag_id)
-    #
-    #                 if tag == "DateTimeOriginal":
-    #                     taken_at = datetime.strptime(
-    #                         value, "%Y:%m:%d %H:%M:%S"
-    #                     )
-    #                     break
-    #
-    #             if taken_at:
-    #                 photo.taken_at = taken_at
-    #                 photo.save()
-    #
-    #         except Exception:
-    #             pass
+    if request.method == "POST":
+        uploads = request.FILES.getlist("photos")
+        if not uploads:
+            messages.error(request, "アップロードする写真を選んでください。")
+        elif len(uploads) > MAX_UPLOAD_COUNT:
+            messages.error(request, f"一度にアップロードできるのは{MAX_UPLOAD_COUNT}枚までです。")
+        else:
+            validated_uploads = []
+            try:
+                for upload in uploads:
+                    validated_uploads.append(_validate_image(upload))
+            except ValueError as exc:
+                messages.error(request, str(exc))
+            else:
+                for upload, taken_at in validated_uploads:
+                    Photo.objects.create(image=upload, taken_at=taken_at)
+                messages.success(request, f"{len(validated_uploads)}枚の写真をアップロードしました。")
+        return redirect("index")
 
-    photos = Photo.objects.all().order_by(
-        "-taken_at",
-        "-uploaded_at",
-    )
-
+    photos = Photo.objects.all().order_by("-taken_at", "-uploaded_at")
     grouped_photos = {}
 
     for photo in photos:
-        if photo.taken_at:
-            key = photo.taken_at.strftime("%Y年%-m月")
-        else:
-            key = "撮影日時なし"
-
-        if key not in grouped_photos:
-            grouped_photos[key] = []
-
-        grouped_photos[key].append(photo)
+        key = photo.taken_at.strftime("%Y年%-m月") if photo.taken_at else "撮影日時なし"
+        grouped_photos.setdefault(key, []).append(photo)
 
     return render(
         request,
@@ -72,81 +118,81 @@ def index(request):
     )
 
 
+@login_required
+@require_POST
 def delete_photo(request, photo_id):
-    # 公開サイトでは削除機能を一時停止中
-    #
-    # photo = get_object_or_404(Photo, id=photo_id)
-    #
-    # if request.method == "POST":
-    #     photo.image.delete(save=False)
-    #     photo.delete()
-
+    # 削除機能は今回の再開対象ではないため、引き続き停止しておく。
+    get_object_or_404(Photo, id=photo_id)
+    messages.error(request, "写真の削除機能は現在停止しています。")
     return redirect("index")
 
 
+@login_required
+@require_POST
 def update_comment(request, photo_id):
-    # 公開サイトではコメント保存機能を一時停止中
-    #
-    # photo = get_object_or_404(Photo, id=photo_id)
-    #
-    # if request.method == "POST":
-    #     photo.comment = request.POST.get("comment", "")
-    #     photo.save()
-
+    photo = get_object_or_404(Photo, id=photo_id)
+    photo.comment = request.POST.get("comment", "")[:5000]
+    photo.save(update_fields=["comment"])
+    messages.success(request, "コメントを保存しました。")
     return redirect("index")
 
 
+@login_required
+@require_POST
 def generate_ai_caption(request, photo_id):
-    # 公開サイトではセキュリティ上の理由により
-    # AIによる文章生成を一時停止中
-    #
-    # photo = get_object_or_404(Photo, id=photo_id)
-    #
-    # if request.method == "POST":
-    #     try:
-    #         prompt = f"""
-    # この写真について、SNSに投稿するような自然な日本語の文章を作ってください。
-    #
-    # ユーザーが書いたメモ：
-    # {photo.comment}
-    #
-    # 文章は100〜200文字程度。
-    # 押しつけがましくなく、自然で読みやすい文章にしてください。
-    #
-    # そのあとに、この写真に合うハッシュタグを5〜10個作ってください。
-    #
-    # 以下の形式で出してください。
-    #
-    # 文章：
-    # （ここに文章）
-    #
-    # ハッシュタグ：
-    # #〇〇 #〇〇 #〇〇
-    # """
-    #
-    #         image = Image.open(io.BytesIO(photo.image.read()))
-    #
-    #         response = client.models.generate_content(
-    #             model="gemini-3.5-flash",
-    #             contents=[image, prompt],
-    #         )
-    #
-    #         result = response.text
-    #
-    #         if "ハッシュタグ：" in result:
-    #             caption, hashtags = result.split("ハッシュタグ：", 1)
-    #         else:
-    #             caption = result
-    #             hashtags = ""
-    #
-    #         photo.ai_caption = caption.replace("文章：", "").strip()
-    #         photo.hashtags = hashtags.strip()
-    #         photo.save()
-    #
-    #     except Exception as e:
-    #         print("===== GEMINI ERROR =====")
-    #         print(repr(e))
-    #         print("========================")
-    #         raise
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        messages.error(request, "AI文章生成の設定がありません。管理者にお問い合わせください。")
+        return redirect("index")
+
+    photo = get_object_or_404(Photo, id=photo_id)
+    prompt = f"""
+この写真について、SNSに投稿するような自然な日本語の文章を作ってください。
+
+ユーザーが書いたメモ：
+{photo.comment}
+
+文章は100〜200文字程度。押しつけがましくなく、自然で読みやすい文章にしてください。
+そのあとに、この写真に合うハッシュタグを5〜10個作ってください。
+
+以下の形式で出してください。
+
+文章：
+（ここに文章）
+
+ハッシュタグ：
+#〇〇 #〇〇 #〇〇
+"""
+
+    try:
+        with photo.image.open("rb") as image_file:
+            image_bytes = image_file.read()
+        with _open_safe_image(io.BytesIO(image_bytes)) as image:
+            normalized = ImageOps.exif_transpose(image)
+            clean_image_bytes = io.BytesIO()
+            normalized.save(clean_image_bytes, format=image.format)
+            clean_image_bytes.seek(0)
+        with _open_safe_image(clean_image_bytes) as image:
+            response = genai.Client(api_key=api_key).models.generate_content(
+                model="gemini-3.8-flash",
+                contents=[image.copy(), prompt],
+            )
+
+        result = response.text or ""
+        if not result.strip():
+            raise ValueError("AIから文章が返されませんでした。")
+
+        if "ハッシュタグ：" in result:
+            caption, hashtags = result.split("ハッシュタグ：", 1)
+        else:
+            caption, hashtags = result, ""
+
+        photo.ai_caption = caption.replace("文章：", "").strip()
+        photo.hashtags = hashtags.strip()
+        photo.save(update_fields=["ai_caption", "hashtags"])
+        messages.success(request, "AI文章を作成しました。")
+    except Exception:
+        logger.exception("Gemini caption generation failed for photo %s", photo_id)
+        messages.error(request, "AI文章を作成できませんでした。時間をおいてもう一度お試しください。")
 
     return redirect("index")

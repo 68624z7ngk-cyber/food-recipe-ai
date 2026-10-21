@@ -104,6 +104,10 @@
     <h1>📷 写真整理アプリ</h1>
 
     <a href="/" class="back-button">ポートフォリオに戻る</a>
+    <form method="post" action="{% url 'logout' %}" style="display:inline-block; margin-bottom:20px;">
+        {% csrf_token %}
+        <button type="submit">ログアウト</button>
+    </form>
 
     <div class="description">
         <strong>写真から、SNS投稿用の文章をAIで作成できます。</strong>
@@ -120,11 +124,18 @@
         </p>
 
         <p>
-            ※ 現在はセキュリティ上の理由により、
-            写真のアップロードおよびAIによる文章生成機能を
-            一時的に停止しています。
+            写真のアップロードと操作にはログインが必要です。アップロードはJPEG・PNG・WebP、1枚5MBまで、1回5枚までです。
+            AI文章生成を実行すると、選んだ写真と入力したコメントがGoogle Geminiに送信されます。
         </p>
     </div>
+
+    {% if messages %}
+        <div class="description" role="status" aria-live="polite">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <div class="upload">
         <form method="post" enctype="multipart/form-data">
@@ -200,7 +211,7 @@
 
                         {% csrf_token %}
 
-                        <button type="submit">削除</button>
+                        <button type="submit" disabled>削除（停止中）</button>
                     </form>
 
                 </div>

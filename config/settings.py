@@ -39,6 +39,10 @@ CSRF_TRUSTED_ORIGINS = [
     "https://k-naga.dev",
 ]
 
+# Photo upload endpoint accepts at most five images of up to 5 MiB each.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 30 * 1024 * 1024
+DATA_UPLOAD_MAX_NUMBER_FILES = 5
+
 
 # Application definition
 
@@ -163,7 +167,7 @@ MAILERS = {
 
 LOGIN_URL = "/photos/login/"
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/photos/login/"
 
 import os
 
@@ -174,9 +178,10 @@ AWS_S3_ENDPOINT_URL = os.getenv("R2_ENDPOINT_URL")
 
 AWS_S3_REGION_NAME = "auto"
 AWS_DEFAULT_ACL = None
-AWS_QUERYSTRING_AUTH = False
-
-AWS_S3_CUSTOM_DOMAIN = "pub-4b770e555038426ebcbe433a57fe0657.r2.dev"
+AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_EXPIRE = 300
+# Use short-lived signed URLs instead of the public r2.dev domain.
+AWS_S3_CUSTOM_DOMAIN = None
 
 STORAGES = {
     "default": {
