@@ -170,10 +170,11 @@ def generate_ai_caption(request, photo_id):
             normalized.save(clean_image_bytes, format=image.format)
             clean_image_bytes.seek(0)
         with _open_safe_image(clean_image_bytes) as image:
-            response = genai.Client(api_key=api_key).models.generate_content(
-                model="gemini-3.8-flash",
-                contents=[image.copy(), prompt],
-            )
+            with genai.Client(api_key=api_key) as client:
+                response = client.models.generate_content(
+                    model="gemini-3.8-flash",
+                    contents=[image.copy(), prompt],
+                )
 
         result = response.text or ""
         if not result.strip():
