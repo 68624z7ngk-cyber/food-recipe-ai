@@ -9,7 +9,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 from django.views.decorators.http import require_POST
 from google import genai
 from PIL import ExifTags, Image, ImageOps, UnidentifiedImageError
@@ -86,8 +85,6 @@ def _validate_image(upload):
 
 def index(request):
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            return redirect(f"{reverse('login')}?next={reverse('index')}")
         uploads = request.FILES.getlist("photos")
         if not uploads:
             messages.error(request, "アップロードする写真を選んでください。")
@@ -129,7 +126,6 @@ def delete_photo(request, photo_id):
     return redirect("index")
 
 
-@login_required
 @require_POST
 def update_comment(request, photo_id):
     photo = get_object_or_404(Photo, id=photo_id)
@@ -139,7 +135,6 @@ def update_comment(request, photo_id):
     return redirect("index")
 
 
-@login_required
 @require_POST
 def generate_ai_caption(request, photo_id):
     api_key = os.getenv("GEMINI_API_KEY")

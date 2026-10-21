@@ -104,13 +104,6 @@
     <h1>📷 写真整理アプリ</h1>
 
     <a href="/" class="back-button">ポートフォリオに戻る</a>
-    {% if user.is_authenticated %}
-        <form method="post" action="{% url 'logout' %}" style="display:inline-block; margin-bottom:20px;">
-            {% csrf_token %}
-            <button type="submit">ログアウト</button>
-        </form>
-    {% endif %}
-
     <div class="description">
         <strong>写真から、SNS投稿用の文章をAIで作成できます。</strong>
 
@@ -126,8 +119,8 @@
         </p>
 
         <p>
-            このページはポートフォリオとして公開しています。写真のアップロード、コメント保存、AI文章生成にはログインが必要です。
-            {% if user.is_authenticated %}アップロードはJPEG・PNG・WebP、1枚5MBまで、1回5枚までです。AI文章生成を実行すると、選んだ写真と入力したコメントがGoogle Geminiに送信されます。{% endif %}
+            このページは公開ポートフォリオです。写真はJPEG・PNG・WebP、1枚5MBまで、1回5枚までアップロードできます。
+            AI文章生成を実行すると、選んだ写真と入力したコメントがGoogle Geminiに送信されます。
         </p>
     </div>
 
@@ -139,8 +132,7 @@
         </div>
     {% endif %}
 
-    {% if user.is_authenticated %}
-        <div class="upload">
+    <div class="upload">
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
@@ -148,8 +140,7 @@
 
             <button type="submit">アップロード</button>
             </form>
-        </div>
-    {% endif %}
+    </div>
 
     {% for month, photos in grouped_photos.items %}
 
@@ -177,7 +168,6 @@
                     {% endif %}
                     -->
 
-                    {% if user.is_authenticated %}
                     <form method="post" action="{% url 'update_comment' photo.id %}">
                         {% csrf_token %}
 
@@ -195,8 +185,6 @@
 
                         <button type="submit">✨ AIで文章を作る</button>
                     </form>
-                    {% endif %}
-
                     {% if photo.ai_caption %}
                         <div class="ai-result">
                             <strong>AIの文章</strong>
@@ -209,17 +197,6 @@
                             <strong>ハッシュタグ</strong>
                             <p>{{ photo.hashtags }}</p>
                         </div>
-                    {% endif %}
-
-                    {% if user.is_authenticated %}
-                    <form method="post"
-                          action="{% url 'delete_photo' photo.id %}"
-                          onsubmit="return confirm('この写真を削除しますか？');">
-
-                        {% csrf_token %}
-
-                        <button type="submit" disabled>削除（停止中）</button>
-                    </form>
                     {% endif %}
 
                 </div>
