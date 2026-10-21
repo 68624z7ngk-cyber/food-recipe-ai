@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from google import genai
 from PIL import ExifTags, Image, ImageOps, UnidentifiedImageError
@@ -83,9 +84,10 @@ def _validate_image(upload):
         upload.seek(0)
 
 
-@login_required
 def index(request):
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect(f"{reverse('login')}?next={reverse('index')}")
         uploads = request.FILES.getlist("photos")
         if not uploads:
             messages.error(request, "アップロードする写真を選んでください。")
