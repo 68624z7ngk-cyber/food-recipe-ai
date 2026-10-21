@@ -1,16 +1,17 @@
 from datetime import datetime
 import io
+import hmac
 import logging
 import os
 from pathlib import Path
 import warnings
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from google import genai
+from google.genai.errors import ServerError
 from PIL import ExifTags, Image, ImageOps, UnidentifiedImageError
 
 from .models import Photo
@@ -113,16 +114,28 @@ def index(request):
     return render(
         request,
         "photos/index.html",
-        {"grouped_photos": grouped_photos},
+        {
+            "grouped_photos": grouped_photos,
+            "photo_deletion_enabled": bool(os.getenv("PHOTO_DELETE_PASSWORD")),
+        },
     )
 
 
-@login_required
 @require_POST
 def delete_photo(request, photo_id):
-    # 削除機能は今回の再開対象ではないため、引き続き停止しておく。
-    get_object_or_404(Photo, id=photo_id)
-    messages.error(request, "写真の削除機能は現在停止しています。")
+    delete_password = os.getenv("PHOTO_DELETE_PASSWORD")
+    supplied_password = request.POST.get("delete_password", "")
+    if not delete_password:
+        messages.error(request, "削除機能の設定がありません。管理者にお問い合わせください。")
+        return redirect("index")
+    if not hmac.compare_digest(supplied_password, delete_password):
+        messages.error(request, "削除用パスワードが違います。")
+        return redirect("index")
+
+    photo = get_object_or_404(Photo, id=photo_id)
+    photo.image.delete(save=False)
+    photo.delete()
+    messages.success(request, "投稿を削除しました。")
     return redirect("index")
 
 
@@ -171,10 +184,23 @@ def generate_ai_caption(request, photo_id):
             clean_image_bytes.seek(0)
         with _open_safe_image(clean_image_bytes) as image:
             with genai.Client(api_key=api_key) as client:
-                response = client.models.generate_content(
-                    model="gemini-3.8-flash",
-                    contents=[image.copy(), prompt],
-                )
+                contents = [image.copy(), prompt]
+                try:
+                    response = client.models.generate_content(
+                        model="gemini-3.8-flash",
+                        contents=contents,
+                    )
+                except ServerError as exc:
+                    if exc.code != 503:
+                        raise
+                    logger.warning(
+                        "Gemini 3.8 Flash is overloaded; retrying photo %s with Flash-Lite",
+                        photo_id,
+                    )
+                    response = client.models.generate_content(
+                        model="gemini-3.5-flash-lite",
+                        contents=contents,
+                    )
 
         result = response.text or ""
         if not result.strip():
@@ -191,6 +217,6 @@ def generate_ai_caption(request, photo_id):
         messages.success(request, "AI文章を作成しました。")
     except Exception:
         logger.exception("Gemini caption generation failed for photo %s", photo_id)
-        messages.error(request, "AI文章を作成できませんでした。時間をおいてもう一度お試しください。")
+        messages.error(request, "AIサービスが混雑しているか、一時的なエラーです。少し待ってからもう一度お試しください。")
 
     return redirect("index")

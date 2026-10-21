@@ -119,8 +119,9 @@
         </p>
 
         <p>
-            このページは公開ポートフォリオです。写真はJPEG・PNG・WebP、1枚5MBまで、1回5枚までアップロードできます。
-            AI文章生成を実行すると、選んだ写真と入力したコメントがGoogle Geminiに送信されます。
+            このページはポートフォリオ用のデモです。写真をアップロードして、コメントやAI文章生成を自由にお試しください。
+            投稿内容はこのページに公開されます。AI文章生成を実行すると、写真と入力したコメントがGoogle Geminiに送信されます。
+            アップロードはJPEG・PNG・WebP、1枚5MBまで、1回5枚までです。
         </p>
     </div>
 
@@ -199,6 +200,16 @@
                         </div>
                     {% endif %}
 
+                    {% if photo_deletion_enabled %}
+                        <form method="post"
+                              action="{% url 'delete_photo' photo.id %}"
+                              onsubmit="return confirmPhotoDelete(this);">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_password">
+                            <button type="submit">投稿を削除</button>
+                        </form>
+                    {% endif %}
+
                 </div>
 
             {% endfor %}
@@ -216,6 +227,18 @@
     </div>
 
     <script>
+        function confirmPhotoDelete(form) {
+            if (!confirm("この投稿を削除しますか？この操作は取り消せません。")) {
+                return false;
+            }
+            const password = prompt("削除用パスワードを入力してください。");
+            if (!password) {
+                return false;
+            }
+            form.elements.delete_password.value = password;
+            return true;
+        }
+
         function openPhoto(url) {
             document.getElementById("viewer-image").src = url;
             document.getElementById("viewer").style.display = "flex";
